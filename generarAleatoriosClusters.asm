@@ -69,7 +69,7 @@ loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
 crearnuevonumero:	
  
         li  $v0, 42                 # service 42 is to set up the upperbound of the random number
-    	addi $a1, $zero, 200  # loading upperbound
+    	addi $a1, $zero, 150  # loading upperbound
     	syscall
     	
     	addi $a0, $a0, -50		#a0 tiene numero entre -50 y 50
@@ -86,6 +86,27 @@ hacerlomil:
     	########################## FUN ################################
     	
     	#addi $a0, $t8, 0
+    	
+    	add $t2, $a0, 0
+    	
+    	beq $s1, 1, newnumber
+    	beq $s1, 3, newnumber
+    	beq $s1, 3, newnumber
+    	j continue2
+    	
+newnumber:
+    	
+        li  $v0, 42                 # service 42 is to set up the upperbound of the random number
+    	addi $a1, $zero, 500  # loading upperbound
+    	syscall
+    	
+    	abs $a0, $a0
+    	
+    	add $t2, $a0, 0
+    	
+ continue2:  	
+  
+  	add $a0, $t2, 0
     	
  	li 	$t3,	10
 	div	$a0,	$t3
