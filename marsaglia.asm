@@ -33,41 +33,67 @@ data:    .word     0 : 1200       # storage for 16x16 matrix of words
 #  Offset is calculated at each iteration. offset = 4 * (row*#cols+col)
 #  Note: no attempt is made to optimize runtime performance!
 
+	li $s3, 5 # m_w
+    	li $s4, 3 # m_z
+
 loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
          mflo     $s2            # move multiply result from lo register to $s2
          add      $s2, $s2, $s1  # $s2 += column counter
          sll      $s2, $s2, 2    # $s2 *= 4 (shift left 2 bits) for byte offset
          
-        li  $v0, 42                 # service 42 is to set up the upperbound of the random number
-    	addi $a1, $zero, 1000  # loading upperbound
-    	syscall
+        #li  $v0, 42                 # service 42 is to set up the upperbound of the random number
+    	#addi $a1, $zero, 1000  # loading upperbound
+    	#syscall
+    	
+newRand:li $t5, 36969
+    	li $t6, 65535
+    	li $t7, 18000
+    	
+    	and $t8, $s4, $t6
+    	srl $t9, $s4, 16
+    	mul $s4, $t5, $t8
+    	add $s4, $s4, $t9
+    	
+    	and $t8, $s3, $t6
+    	srl $t9, $s3, 16
+    	mul $s3, $t7, $t8
+    	add $s3, $s3, $t9
+    	
+    	sll $t5, $s4, 16
+    	addu $a0, $t5, $s3
     	
     	
     	
+    	li $t5, 1023
+    	and $a0, $t5, $a0
+    	
+    	li $t5, 1000
+    	
+    	bgt $a0, $t5, newRand
     	
     	########################## FUN ################################
     	
     	
  	li 	$t3,	10
-	div	$a0,	$t3
+	divu	$a0,	$t3
 	mfhi 	$t4
 	mflo	$t5
 	addi	$t4,	$t4,	48
 	sw 	$t4,	var3	
 
-	div	$t5,	$t3
+	divu	$t5,	$t3
 	mfhi 	$t4
 	mflo	$t5
 	addi	$t4,	$t4,	48
 	sw 	$t4,	var2
 	
-	div	$t5,	$t3
+	divu	$t5,	$t3
 	mfhi 	$t4
 	mflo	$t5
 	addi	$t4,	$t4,	48
 	sw 	$t4,	var1
 	
-	div	$t5,	$t3
+	divu	$t5,	$t3
 	mfhi 	$t4
 	mflo	$t5
 	addi	$t4,	$t4,	48
@@ -110,14 +136,15 @@ loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
 #  Loop control: If we increment past last column, reset column counter and increment row counter
 #                If we increment past last row, we're finished.
          addi     $s1, $s1, 1    # increment column counter
-         
+	beq $s1,$t1, seguir
+               
          li   $v0, 15       # system call for write to file
   	move $a0, $s6      # file descriptor 
   	la   $a1, comma   # address of buffer from which to write
   	li   $a2, 1       # hardcoded buffer length
  	syscall            # write to file
          
-         
+  seguir:       
          bne      $s1, $t1, loop # not at end of row so loop back
          move     $s1, $zero     # reset column counter
          addi     $s0, $s0, 1    # increment row counter
@@ -142,5 +169,4 @@ loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
 
 
 
-	
 	
