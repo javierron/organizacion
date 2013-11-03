@@ -9,7 +9,7 @@ var1: .word 0
 var2: .word 0
 var3: .word 0
 
-list: .word 0, 0, 0, 0, 0
+list: .word -9999, -9999, -9999, -9999, -9999 
 
 data:    .word     0 : 1200       # storage for 16x16 matrix of words
          .text
@@ -166,100 +166,53 @@ hacerlomil:
     	
     	add $t7, $t7, $t7 # $t7 * 2
     	
- crearunnuevonumero:
-         
-        li  $v0, 42                 # service 42 is to set up the upperbound of the random number
+    	li $t2, 0
+    	la $t6, list	
+    	
+    	li  $v0, 42                 # service 42 is to set up the upperbound of the random number
     	addi $a1, $zero, 1000  # loading upperbound
     	syscall
     	
-    	la $t6, list
     	
-    	li $t2, 1
-    	
-    	li $t3, 0
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $t3, 0($t4)			#chequeamos en el arreglo
-    
-    	
-    	sub $t3, $a0, $t3
-    	abs $t3, $t3
-    	
-    	blt $t3, 200, crearunnuevonumero
-    	
-    	li $t2, 2
-    	
-    	blt $t8, 2, guardarnumero
-    	
-    	li $t3, 1
+ crearunnuevonumero:
+         
+    	addi $t3, $t2,0
     	add $t3, $t3, $t3
     	add $t3, $t3, $t3
     	add $t4, $t3, $t6
     	lw $t3, 0($t4)			#chequeamos en el arreglo
     	
+    	beq $t3, -9999, guardarnumero
+
     	sub $t3, $a0, $t3
     	abs $t3, $t3
     	
-    	blt $t3, 200, crearunnuevonumero
+    	blt $t3, 200, encerar
     	
-    	li $t2, 3
+    	addi $t2, $t2, 1
+    	j crearunnuevonumero
+
+encerar:
+
+	li $t2, 0
+	li  $v0, 42                 # service 42 is to set up the upperbound of the random number
+    	addi $a1, $zero, 1000  # loading upperbound
+    	syscall
     	
-     	blt $t8, 3, guardarnumero
-    	
-    	li $t3, 2
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $t3, 0($t4)			#chequeamos en el arreglo
-    	
-    	sub $t3, $a0, $t3
-    	abs $t3, $t3
-    	
-    	blt $t3, 200, crearunnuevonumero
-    	
-    	li $t2, 4
-    	
-    	blt $t8, 4, guardarnumero
-    	
-    	li $t3, 3
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $t3, 0($t4)			#chequeamos en el arreglo
-    	
-    	sub $t3, $a0, $t3
-    	abs $t3, $t3
-    	
-    	blt $t3, 200, crearunnuevonumero
-    	
-    	li $t2, 5
-    	
-    	blt $t8, 5, guardarnumero
-    	
-    	li $t3, 4
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $t3, 0($t4)			#chequeamos en el arreglo
-    	
-    	sub $t3, $a0, $t3
-    	abs $t3, $t3
-    	
-    	blt $t3, 200, crearunnuevonumero
+	j crearunnuevonumero
+
 
 guardarnumero:
 
   addi $t9, $a0, 0		#t9 va a tener el centro
 
       	la $t6, list
-      	add $t3, $t2,-1
+      	add $t3, $t2,0
     	add $t3, $t3, $t3
     	add $t3, $t3, $t3
     	add $t4, $t3, $t6
     	sw $t9, 0($t4)			#chequeamos en el arreglo
     	
-  
  seguir2: 	
 
          li   $v0, 15       # system call for write to file
@@ -278,6 +231,15 @@ guardarnumero:
     	
         la $t6, list
 	li $t3, 0
+    	add $t3, $t3, $t3
+    	add $t3, $t3, $t3
+    	add $t4, $t3, $t6
+    	lw $a0, 0($t4)			#chequeamos en el arreglo
+    	
+    	li $v0, 1
+    	syscall
+    	
+    	li $t3, 1
     	add $t3, $t3, $t3
     	add $t3, $t3, $t3
     	add $t4, $t3, $t6
