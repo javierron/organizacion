@@ -110,14 +110,15 @@ loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
 #  Loop control: If we increment past last column, reset column counter and increment row counter
 #                If we increment past last row, we're finished.
          addi     $s1, $s1, 1    # increment column counter
-         
+	beq $s1,$t1, seguir
+               
          li   $v0, 15       # system call for write to file
   	move $a0, $s6      # file descriptor 
   	la   $a1, comma   # address of buffer from which to write
   	li   $a2, 1       # hardcoded buffer length
  	syscall            # write to file
          
-         
+  seguir:       
          bne      $s1, $t1, loop # not at end of row so loop back
          move     $s1, $zero     # reset column counter
          addi     $s0, $s0, 1    # increment row counter
