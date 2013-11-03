@@ -107,6 +107,12 @@ newnumber:
  continue2:  	
   
   	add $a0, $t2, 0
+  	
+  	bgt $a0, 0, continue3
+  	
+  	li $a0, 0
+  	
+ continue3:
     	
  	li 	$t3,	10
 	div	$a0,	$t3
