@@ -1,5 +1,5 @@
          .data      
-fout:   .asciiz 	"randomMIPSclusterx.txt"      # filename for output
+fout:   .asciiz 	"randomMIPSclusters.txt"      # filename for output
 
 comma: 	.asciiz 	","
 return: .asciiz 	"\n"
@@ -11,6 +11,8 @@ var3: .word 0
 
 list: .word -9999, -9999, -9999, -9999, -9999 
 
+saltos: .word 0
+
 data:    .word     0 : 1200       # storage for 16x16 matrix of words
          .text
  
@@ -19,7 +21,7 @@ data:    .word     0 : 1200       # storage for 16x16 matrix of words
           
          li       $t0, 600        # $t0 = number of rows
          li       $t1, 2        # $t1 = number of columns
-         li 	  $t8, 3       # $t8 = numero de clusters
+         li 	  $t8, 4       # $t8 = numero de clusters
          move     $s0, $zero     # $s0 = row counter
          move     $s1, $zero     # $s1 = column counter
          move     $t2, $zero     # $t2 = the value to be stored
@@ -34,7 +36,9 @@ data:    .word     0 : 1200       # storage for 16x16 matrix of words
  	li $t9, -1			#valor central en xy, valor temporal de -1
  	
  	div $t0, $t8
- 	mflo $t7		
+ 	mflo $t7	
+ 	
+ 	sw $t7, saltos	
  	
  	
 #  Each loop iteration will store incremented $t1 value into next element of matrix.
@@ -69,10 +73,10 @@ loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
 crearnuevonumero:	
  
         li  $v0, 42                 # service 42 is to set up the upperbound of the random number
-    	addi $a1, $zero, 150  # loading upperbound
+    	addi $a1, $zero, 100  # loading upperbound
     	syscall
     	
-    	addi $a0, $a0, -50		#a0 tiene numero entre -50 y 50
+    	#addi $a0, $a0, -50		#a0 tiene numero entre -50 y 50
     	add $a0, $a0, $t9		#a0 tiene numero original sumado el numero anterior
    
  	bgt $a0, 1000, hacerlomil
@@ -91,13 +95,13 @@ hacerlomil:
     	
     	beq $s1, 1, newnumber
     	beq $s1, 3, newnumber
-    	beq $s1, 3, newnumber
+    	beq $s1, 5, newnumber
     	j continue2
     	
 newnumber:
     	
         li  $v0, 42                 # service 42 is to set up the upperbound of the random number
-    	addi $a1, $zero, 500  # loading upperbound
+    	addi $a1, $zero, 1000  # loading upperbound
     	syscall
     	
     	abs $a0, $a0
@@ -111,8 +115,16 @@ newnumber:
   	bgt $a0, 0, continue3
   	
   	li $a0, 0
+  
   	
  continue3:
+    	
+    	blt $a0, 1000, continue4
+    	
+    	li $a0, 1000
+    	
+ continue4:
+    	
     	
  	li 	$t3,	10
 	div	$a0,	$t3
@@ -190,8 +202,10 @@ newnumber:
          addi     $s0, $s0, 1    # increment row counter
          
         bne $s0, $t7, seguir2
+        
+        lw $t2, saltos
     	
-    	add $t7, $t7, $t7 # $t7 * 2
+    	add $t7, $t7, $t2 # $t7 * 2
     	
     	li $t2, 0
     	la $t6, list	
@@ -214,7 +228,7 @@ newnumber:
     	sub $t3, $a0, $t3
     	abs $t3, $t3
     	
-    	blt $t3, 200, encerar
+    	blt $t3, 120, encerar
     	
     	addi $t2, $t2, 1
     	j crearunnuevonumero
@@ -267,6 +281,33 @@ guardarnumero:
     	syscall
     	
     	li $t3, 1
+    	add $t3, $t3, $t3
+    	add $t3, $t3, $t3
+    	add $t4, $t3, $t6
+    	lw $a0, 0($t4)			#chequeamos en el arreglo
+    	
+    	li $v0, 1
+    	syscall
+    	
+    	li $t3, 2
+    	add $t3, $t3, $t3
+    	add $t3, $t3, $t3
+    	add $t4, $t3, $t6
+    	lw $a0, 0($t4)			#chequeamos en el arreglo
+    	
+    	li $v0, 1
+    	syscall
+    	
+    	li $t3, 3
+    	add $t3, $t3, $t3
+    	add $t3, $t3, $t3
+    	add $t4, $t3, $t6
+    	lw $a0, 0($t4)			#chequeamos en el arreglo
+    	
+    	li $v0, 1
+    	syscall
+    	
+    	li $t3, 4
     	add $t3, $t3, $t3
     	add $t3, $t3, $t3
     	add $t4, $t3, $t6
