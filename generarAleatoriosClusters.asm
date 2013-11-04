@@ -19,9 +19,9 @@ data:    .word     0 : 1200       # storage for 16x16 matrix of words
          addi	$v0,	$v0,	5678
          
           
-         li       $t0, 600        # $t0 = number of rows
-         li       $t1, 2        # $t1 = number of columns
-         li 	  $t8, 4       # $t8 = numero de clusters
+         li       $t0, 300        # $t0 = number of rows
+         li       $t1, 4        # $t1 = number of columns
+         li 	  $t8, 5       # $t8 = numero de clusters
          move     $s0, $zero     # $s0 = row counter
          move     $s1, $zero     # $s1 = column counter
          move     $t2, $zero     # $t2 = the value to be stored
