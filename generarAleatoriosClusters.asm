@@ -207,6 +207,8 @@ newnumber:
     	
     	add $t7, $t7, $t2 # $t7 * 2
     	
+    	beq $s0, $t0, terminar
+    	
     	li $t2, 0
     	la $t6, list	
     	
@@ -264,6 +266,7 @@ guardarnumero:
          
          bne      $s0, $t0, loop # not at end of matrix so loop back
          
+terminar:
            # Close the file 
  	 li   $v0, 16       # system call for close file
   	move $a0, $s6      # file descriptor to close
