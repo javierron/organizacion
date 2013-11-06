@@ -1,27 +1,94 @@
          .data      
-fout:   .asciiz 	"randomMIPSclusters.txt"      # filename for output
+fout:   .asciiz 	"randomMIPSclusters.txt"      # archivo por escribir
 
-comma: 	.asciiz 	","
-return: .asciiz 	"\n"
+comma: 	.asciiz 	","				# coma para los archivos
+return: .asciiz 	"\n"				# enter para los archivos
 
-var0: .word 0
-var1: .word 0
+mensaje1: .asciiz "==========================\n\nIngrese el numero de dimensiones (max. 4): "
+mensaje2: .asciiz "==========================\n\nIngrese el numero de clusters que desea: "
+mensaje3: .asciiz "Error! Vuelva a ingresar el numero.\n\n"
+mensaje4: .asciiz "==========================\nEl archivo se ha generado. Se llama randomMIPSclusters.txt."
+
+var0: .word 0					# archivos para convertir numeros a strings
+var1: .word 0					# para convertir archivos
 var2: .word 0
 var3: .word 0
 
-list: .word -9999, -9999, -9999, -9999, -9999 
+list: .word -9999, -9999, -9999, -9999, -9999 	# guardar puntos centrales en x de clusters
 
 saltos: .word 0
 
-data:    .word     0 : 1200       # storage for 16x16 matrix of words
+data:    .word     0 : 1200       # lista de 1200 puntos
          .text
+   
+pedirdimension:
+               
+         li $v0, 4				# imprimir mensaje 1
+         la $a0, mensaje1
+         syscall
+         
+         li $v0, 5
+         syscall
+         
+         li $a0, 5				# si es mayor que cuatro, repetir
+         
+         blt $v0, $a0, guardardimension
+         
+         li $v0, 4				# imprimir mensaje de error
+         la $a0, mensaje3
+         syscall
+         
+         j pedirdimension
+         
+ guardardimension:
+ 
+ 	li $a0, 2
+ 	bgt $v0, $a0, guardarfinalmente
+ 	
+ 	li $v0, 2				# valor default: 2
+ 	
+guardarfinalmente:
+ 	
+         addi $t4, $v0, 0			# guardar valor
+         
+pedirclusters:
+         
+         li $v0, 4				# imprimir mensaje 2
+         la $a0, mensaje2
+         syscall
+         
+         li $v0, 5				
+         syscall
+         
+         li $a0, 6				# si es mayor que cuatro, repetir
+         
+         blt $v0, $a0, guardarclusters
+         
+         li $v0, 4				# imprimir mensaje de error
+         la $a0, mensaje3
+         syscall
+         
+         j pedirclusters
+         
+guardarclusters:
+ 	li $a0, 2
+ 	bgt $v0, $a0, guardarfinalmente2
+ 	
+ 	li $v0, 2				# valor default: 2
+ 	
+guardarfinalmente2:
+         addi $t5,$v0, 0			# pedir valor
+         
+         li $t6,1200
+         
+         div $t6, $t4
+         mflo $t6 
  
          addi	$v0,	$v0,	5678
-         
           
-         li       $t0, 300        # $t0 = number of rows
-         li       $t1, 4        # $t1 = number of columns
-         li 	  $t8, 5       # $t8 = numero de clusters
+         addi       $t0, $t6,0        # $t0 = number of rows
+         addi       $t1, $t4,0        # $t1 = number of columns
+         addi 	  $t8, $t5,0       # $t8 = numero de clusters
          move     $s0, $zero     # $s0 = row counter
          move     $s1, $zero     # $s1 = column counter
          move     $t2, $zero     # $t2 = the value to be stored
@@ -93,9 +160,9 @@ hacerlomil:
     	
     	add $t2, $a0, 0
     	
-    	beq $s1, 1, newnumber
-    	beq $s1, 3, newnumber
-    	beq $s1, 5, newnumber
+    	beq $s1, 1, newnumber			# si la dimension actual recorrida
+    	beq $s1, 3, newnumber			# es uno, tres y cinco,
+    	beq $s1, 5, newnumber			# calcular nuevo numero
     	j continue2
     	
 newnumber:
@@ -126,7 +193,7 @@ newnumber:
  continue4:
     	
     	
- 	li 	$t3,	10
+ 	li 	$t3,	10			# imprimir numero en el archivo
 	div	$a0,	$t3
 	mfhi 	$t4
 	mflo	$t5
@@ -225,12 +292,12 @@ newnumber:
     	add $t4, $t3, $t6
     	lw $t3, 0($t4)			#chequeamos en el arreglo
     	
-    	beq $t3, -9999, guardarnumero
+    	beq $t3, -9999, guardarnumero	# si llegamos a una posicion con -9999, entonces guardar el numero
 
     	sub $t3, $a0, $t3
     	abs $t3, $t3
     	
-    	blt $t3, 120, encerar
+    	blt $t3, 120, encerar		# si el nuevo numero generado esta cercano a otro, crear uno nuevo
     	
     	addi $t2, $t2, 1
     	j crearunnuevonumero
@@ -272,52 +339,9 @@ terminar:
   	move $a0, $s6      # file descriptor to close
 	syscall            # close file
 	
-    	
-        la $t6, list
-	li $t3, 0
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $a0, 0($t4)			#chequeamos en el arreglo
-    	
-    	li $v0, 1
-    	syscall
-    	
-    	li $t3, 1
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $a0, 0($t4)			#chequeamos en el arreglo
-    	
-    	li $v0, 1
-    	syscall
-    	
-    	li $t3, 2
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $a0, 0($t4)			#chequeamos en el arreglo
-    	
-    	li $v0, 1
-    	syscall
-    	
-    	li $t3, 3
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $a0, 0($t4)			#chequeamos en el arreglo
-    	
-    	li $v0, 1
-    	syscall
-    	
-    	li $t3, 4
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
-    	add $t4, $t3, $t6
-    	lw $a0, 0($t4)			#chequeamos en el arreglo
-    	
-    	li $v0, 1
-    	syscall
+	 li $v0, 4				# imprimir mensaje de exito
+         la $a0, mensaje4
+         syscall
     	
 	
 #  We're finished traversing the matrix.
