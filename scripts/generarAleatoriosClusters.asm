@@ -16,6 +16,8 @@ var3: .word 0
 
 list: .word -9999, -9999, -9999, -9999, -9999 	# guardar puntos centrales en x de clusters
 
+listx: .space 1024
+
 saltos: .word 0
 
 data:    .word     0 : 1200       # lista de 1200 puntos
@@ -130,9 +132,12 @@ loop:    mult     $s0, $t1       # $s2 = row * #cols  (two-instruction sequence)
     	
     	la $t6, list
     	li $t3, 0
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
+    	#add $t3, $t3, $t3
+    	#add $t3, $t3, $t3
+    	sll $t3, $t3, 2
     	add $t4, $t3, $t6
+   
+    	
     	sw $t9, 0($t4)			#guardamos en el arreglo
     	
     	j continue
@@ -227,7 +232,7 @@ newnumber:
  	
  	 li   $v0, 15       # system call for write to file
   	move $a0, $s6      # file descriptor 
-  	la   $a1, var1   # address of buffer from which to write
+  	la   $a1, var1    # address of buffer from which to write
   	li   $a2, 1       # hardcoded buffer length
  	syscall            # write to file
  	
@@ -287,8 +292,9 @@ newnumber:
  crearunnuevonumero:
          
     	addi $t3, $t2,0
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
+    	#add $t3, $t3, $t3
+    	#add $t3, $t3, $t3
+    	sll $t3, $t3, 2
     	add $t4, $t3, $t6
     	lw $t3, 0($t4)			#chequeamos en el arreglo
     	
@@ -317,9 +323,10 @@ guardarnumero:
   addi $t9, $a0, 0		#t9 va a tener el centro
 
       	la $t6, list
-      	add $t3, $t2,0
-    	add $t3, $t3, $t3
-    	add $t3, $t3, $t3
+      	add $t3, $t2, 0
+    	#add $t3, $t3, $t3
+    	#add $t3, $t3, $t3
+    	sll $t3, $t3, 2
     	add $t4, $t3, $t6
     	sw $t9, 0($t4)			#chequeamos en el arreglo
     	
