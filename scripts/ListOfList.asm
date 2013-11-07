@@ -1,13 +1,92 @@
-	.data
-list: 	.space 256
-comma:	.asciiz	","
-return:	.asciiz	"\n"
+		.data
+list: 		.space 256
+temp:		.space	16
+comma:		.asciiz	","
+return:		.asciiz	"\n"
+fout:   	.asciiz 	"randomMIPSclusters.txt"     	# archivo por escribir
 
+mensaje1: 	.asciiz "==========================\n\nIngrese el numero de dimensiones (max. 4): "
+mensaje2: 	.asciiz "==========================\n\nIngrese el numero de clusters que desea: "
+mensaje3: 	.asciiz "Error! Vuelva a ingresar el numero.\n\n"
+mensaje4: 	.asciiz "==========================\nEl archivo se ha generado. Se llama randomMIPSclusters.txt."
 
-	.text
+		.text
 	
-	li	$s0,	4				# numero de dimensiones
-	li	$s1,	5				# numero de clusters
+	
+	
+	####### INTERFACE CODE ################################
+	
+	pedirdimension:
+               
+         li 	$v0, 	4				# imprimir mensaje 1
+         la 	$a0, 	mensaje1
+         syscall
+         
+         li 	$v0, 	5
+         syscall
+         
+         li 	$a0, 	5				# si es mayor que cuatro, repetir
+         
+         blt 	$v0, 	$a0, 	guardardimension
+         
+         li 	$v0, 	4				# imprimir mensaje de error
+         la 	$a0, 	mensaje3
+         syscall
+         
+         j 	pedirdimension
+         
+ guardardimension:
+ 
+ 	li 	$a0	2
+ 	bgt 	$v0, 	$a0, 	guardarfinalmente
+ 	
+ 	li 	$v0, 	2				# valor default: 2
+ 	
+guardarfinalmente:
+ 	
+         addi 	$s0, 	$v0, 	0			# guardar valor
+         
+pedirclusters:
+         
+         li 	$v0, 	4				# imprimir mensaje 2
+         la 	$a0, 	mensaje2
+         syscall
+         
+         li 	$v0, 	5				
+         syscall
+         
+         li 	$a0, 	6				# si es mayor que cuatro, repetir
+         
+         blt 	$v0, 	$a0, 	guardarclusters
+         
+         li 	$v0, 	4				# imprimir mensaje de error
+         la 	$a0, 	mensaje3
+         syscall
+         
+         j 	pedirclusters
+         
+guardarclusters:
+ 	li 	$a0, 	2
+ 	bgt 	$v0, 	$a0, 	guardarfinalmente2
+ 	
+ 	li 	$v0, 	2				# valor default: 2
+ 	
+ guardarfinalmente2:
+         addi 	$s1,	$v0, 	0			# pedir valor
+	
+	###################### END OF INTERFACE CODE#################################
+	
+	
+	li   	$v0, 	13 				# abriendo el archivo      
+  	la   	$a0, 	fout     
+  	li   	$a1, 	1        
+  	li   	$a2, 	0       
+ 	syscall            
+ 	move 	$s6, 	$v0       
+	
+	
+	#li	$s0,	4				# numero de dimensiones
+	#li	$s1,	5				# numero de clusters
 	li	$s2,	50				# items por cluster
 	li	$s3,	1000				# distancia entre clusters
 	li	$s4,	26				# rango de clusters
@@ -22,7 +101,7 @@ generateItem:
 	
 generateNumber:
 	li	$v0,	42                		# service 42 is to set up the upperbound of the random number
-    	addi	$a1,	$zero,	1000  			# loading upperbound
+    	addi	$a1,	$zero,	950  			# loading upperbound
     	syscall	
     	
     	
@@ -124,9 +203,6 @@ forEachItemPerCluster:
 	li	$t3,	0				#indice de elemento dentro de lista
 forEachNumberPerItem:
 
-
-
-
 	li	$v0,	42                		# service 42 is to set up the upperbound of the random number
     	add	$a1,	$zero,	$s4			# loading upperbound
     	syscall	
@@ -152,10 +228,60 @@ forEachNumberPerItem:
 	move	$a0,	$t4
 	li	$v0,	1
 	syscall
+
+########################PRINTING NUMBER TO FILE#################################
+	move	$t6,	$a0
+
+	li	$t9,	0
+printIntLoop:
+	li	$t7,	10
 	
+	div	$t6,	$t7
+	mfhi	$t7
+	addi	$t7,	$t7,	48
+	
+	la	$t8,	temp
+	sll	$t9,	$t9,	2
+	add	$t8,	$t8,	$t9
+	srl	$t9,	$t9,	2
+	sw	$t7,	0($t8)
+	
+	
+ 	
+ 	mflo	$t6
+ 	addi	$t9,	$t9,	1
+ 	beq	$t6,	$zero,	endPrintInt
+ 	j	printIntLoop	
+
+endPrintInt:	
+	li   	$v0,	15      
+  	move 	$a0,	$s6      
+  	la   	$a1, 	temp 
+  	addi	$a1,	$a1,	8
+  	li   	$a2, 	1       
+ 	syscall 
+ 	
+ 	li   	$v0,	15   
+ 	addi	$a1,	$a1,	-4
+ 	syscall
+ 	
+ 	li   	$v0,	15   
+ 	addi	$a1,	$a1,	-4
+ 	syscall
+ 	
+	
+################################################################################
+		
+				
 	la	$a0,	comma
 	li	$v0,	4
 	syscall
+	
+	li   $v0, 15       # system call for write to file
+  	move $a0, $s6      # file descriptor 
+  	la   $a1, comma   # address of buffer from which to write
+  	li   $a2, 1       # hardcoded buffer length
+ 	syscall  
 
 	addi	$t3,	$t3,	1
 	beq	$t3,	$s0,	endNumberPerItem
@@ -165,6 +291,12 @@ endNumberPerItem:
 	la	$a0,	return
 	li	$v0,	4
 	syscall
+
+	li   $v0, 15       # system call for write to file
+  	move $a0, $s6      # file descriptor 
+  	la   $a1, return   # address of buffer from which to write
+  	li   $a2, 1       # hardcoded buffer length
+ 	syscall 
 
 
 	addi	$t0,	$t0,	1
