@@ -1,9 +1,9 @@
 		.data
-list: 		.space 256
+list: 		.space	256
 temp:		.space	16
 comma:		.asciiz	","
 return:		.asciiz	"\n"
-fout:   	.asciiz 	"randomMIPSclusters.txt"     	# archivo por escribir
+fout:   	.asciiz	"randomMIPSclusters.txt"     	# archivo por escribir
 
 mensaje1: 	.asciiz "==========================\n\nIngrese el numero de dimensiones (max. 4): "
 mensaje2: 	.asciiz "==========================\n\nIngrese el numero de clusters que desea: "
@@ -87,7 +87,7 @@ guardarclusters:
 	
 	#li	$s0,	4				# numero de dimensiones
 	#li	$s1,	5				# numero de clusters
-	li	$s2,	50				# items por cluster
+	li	$s2,	1200				# items 
 	li	$s3,	1000				# distancia entre clusters
 	li	$s4,	26				# rango de clusters
 	
@@ -192,13 +192,17 @@ doneCreatingCenters:
 
 #################### FUN CODE TO GENERATE CLUSTERS########################
 
-	li	$t1,	0				#indice de cluster
+					#indice de cluster
 
-forEachClusterLoop:
 	li	$t0,	0				#indice de elemento, not important.
-		
 
 forEachItemPerCluster:
+
+	li	$v0,	42                		# service 42 is to set up the upperbound of the random number
+    	add	$a1,	$zero,	$s1			# loading upperbound
+    	syscall	
+
+	move	$t1,	$a0	
 
 	li	$t3,	0				#indice de elemento dentro de lista
 forEachNumberPerItem:
@@ -272,7 +276,9 @@ endPrintInt:
 	
 ################################################################################
 		
-				
+	addi	$t3,	$t3,	1
+	beq	$t3,	$s0,	endNumberPerItem
+							
 	la	$a0,	comma
 	li	$v0,	4
 	syscall
@@ -283,8 +289,7 @@ endPrintInt:
   	li   $a2, 1       # hardcoded buffer length
  	syscall  
 
-	addi	$t3,	$t3,	1
-	beq	$t3,	$s0,	endNumberPerItem
+	
 	j	forEachNumberPerItem
 endNumberPerItem:
 
@@ -304,11 +309,6 @@ endNumberPerItem:
 	j	forEachItemPerCluster
 endItemPerCuster:
 
-	addi	$t1,	$t1,	1
-	beq	$t1,	$s1,	endClusterLoop
-	j	forEachClusterLoop
-
-endClusterLoop:
 
 
 #################### END OF CODE TO GENERATE CLUSTERS########################
