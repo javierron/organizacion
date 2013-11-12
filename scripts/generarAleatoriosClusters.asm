@@ -227,7 +227,24 @@ forEachNumberPerItem:
 	
 	sub	$t4,	$t4,	$t5
 	
-	add	$t4,	$t4,	$a0	
+	add	$t4,	$t4,	$a0
+	
+	blt	$t4,	$zero,	LessThanZero
+	j	notLessThanZero
+
+LessThanZero:
+	li	$t4,	0
+notLessThanZero:	
+	
+	li	$t9	999
+	
+	bgt	$t4,	$t9,	GreaterThan999
+	j	notGreaterThan999
+	
+GreaterThan999:	
+	li	$t4,	999
+
+notGreaterThan999:
 
 	move	$a0,	$t4
 	li	$v0,	1
@@ -236,7 +253,16 @@ forEachNumberPerItem:
 ########################PRINTING NUMBER TO FILE#################################
 	move	$t6,	$a0
 
+	li	$t9,	48
+	
+	la	$t8,	temp
+	
+	sw	$t9,	0($t8)
+	sw	$t9,	4($t8)
+	sw	$t9,	8($t8)
+	
 	li	$t9,	0
+	
 printIntLoop:
 	li	$t7,	10
 	
@@ -254,7 +280,9 @@ printIntLoop:
  	
  	mflo	$t6
  	addi	$t9,	$t9,	1
+ 		
  	beq	$t6,	$zero,	endPrintInt
+ 	
  	j	printIntLoop	
 
 endPrintInt:	
